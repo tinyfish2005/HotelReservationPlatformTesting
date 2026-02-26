@@ -42,7 +42,7 @@ input{width:100%;padding:.8rem;margin:.6rem 0;border:1px solid #ddd;border-radiu
 
   <div class="container">
     <div class="card">
-      <div class="title">📋 订单管理</div>
+      <div class="title">订单管理</div>
       <table>
         <thead>
           <tr>
@@ -54,7 +54,7 @@ input{width:100%;padding:.8rem;margin:.6rem 0;border:1px solid #ddd;border-radiu
     </div>
 
     <div class="card">
-      <div class="title">🏠 房型管理（可增/改/删）</div>
+      <div class="title">房型管理</div>
       <div style="padding:1rem;background:#f8f9fa;border-radius:4px;margin-bottom:1rem">
         <h4 style="margin-bottom:1rem">新增房型</h4>
         <div class="form-row">
@@ -73,7 +73,7 @@ input{width:100%;padding:.8rem;margin:.6rem 0;border:1px solid #ddd;border-radiu
       <table>
         <thead>
           <tr>
-            <th>ID</th><th>房型名称</th><th>总数量</th><th>已预订</th><th>可订数量</th><th>操作</th>
+            <th>ID</th><th>房型名称</th><th>总数量</th><th>当日已预订</th><th>可订数量</th><th>操作</th>
           </tr>
         </thead>
         <tbody id="roomTable"></tbody>
@@ -81,7 +81,7 @@ input{width:100%;padding:.8rem;margin:.6rem 0;border:1px solid #ddd;border-radiu
     </div>
 
     <div class="card">
-      <div class="title">⭐ 评价管理</div>
+      <div class="title">评价管理</div>
       <table>
         <thead>
           <tr>
@@ -202,7 +202,7 @@ function addRoom(){
   document.getElementById('newRoomName').value='';
   document.getElementById('newRoomTotal').value='5';
   render();
-  alert('✅ 添加成功：'+name);
+  alert('添加成功：'+name);
 }
 
 // 修改房型总数量
@@ -222,7 +222,7 @@ function updateRoomTotal(roomId, newTotal){
 
   saveStock(s);
   render();
-  alert('✅ 总数量修改成功！');
+  alert('总数量修改成功！');
 }
 
 // 回车修改数量
@@ -239,7 +239,7 @@ function delRoom(id){
   const s=stock();
   const name = (s[today()]&&s[today()][id]) ? s[today()][id].name : '该房型';
   
-  if(!confirm(`⚠️ 确认删除房型「${name}（ID：${id}）」吗？
+  if(!confirm(`确认删除房型「${name}（ID：${id}）」吗？
 删除后该房型会从所有日期的库存中彻底移除，用户端将无法看到/预订该房型！`)){
     return;
   }
@@ -251,12 +251,12 @@ function delRoom(id){
 
   saveStock(s);
   render();
-  alert('✅ 已删除：'+name);
+  alert('已删除：'+name);
 }
 
 // 删除订单（自动恢复可订数）
 function delOrder(i){
-  if(!confirm('⚠️ 确认删除此订单？删除后会自动恢复对应房型的可订数量！')) return;
+  if(!confirm('确认删除此订单？删除后会自动恢复对应房型的可订数量！')) return;
   
   const os=getOrders();
   const deletedOrder = os[i];
@@ -266,7 +266,7 @@ function delOrder(i){
   localStorage.setItem('hotelOrders',JSON.stringify(os));
   
   render();
-  alert(`✅ 订单已删除！
+  alert(`订单已删除！
 ${deletedOrder.room} 的可订数量已恢复1间`);
 }
 
@@ -358,4 +358,5 @@ function render(){
 }
 </script>
 </body>
+
 </html>
