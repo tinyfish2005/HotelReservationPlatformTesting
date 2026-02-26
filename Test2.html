@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>悦庭酒店 - 高品质住宿预订平台</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        /* 导航栏样式 */
+        nav {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #3498db;
+        }
+
+        /* 英雄区样式 */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1540518614846-7eded433c457?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 0 5%;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* 内容区通用样式 */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 5%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+
+        /* 酒店展示区 */
+        .hotels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .hotel-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .hotel-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .hotel-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .hotel-info {
+            padding: 1.5rem;
+        }
+
+        .hotel-name {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .hotel-price {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .hotel-desc {
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        /* 预订表单区 */
+        .booking-section {
+            background-color: #f8f9fa;
+            padding: 3rem 0;
+            margin: 4rem 0;
+        }
+
+        .booking-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* 评价区 */
+        .reviews {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .review-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .reviewer {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reviewer-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .stars {
+            color: #f39c12;
+            margin-bottom: 1rem;
+        }
+
+        /* 页脚样式 */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 3rem 5%;
+            text-align: center;
+        }
+
+        .footer-links {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+
+        .copyright {
+            margin-top: 1rem;
+            color: #bdc3c7;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background-color: #e74c3c;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="logo">悦庭酒店</div>
+        <div class="nav-links">
+            <a href="#home">首页</a>
+            <a href="#hotels">酒店列表</a>
+            <a href="#booking">立即预订</a>
+            <a href="#reviews">用户评价</a>
+            <a href="#contact">联系我们</a>
+        </div>
+    </nav>
+
+    <!-- 英雄区 -->
+    <section id="home" class="hero">
+        <h1>尽享舒适，悦享旅途</h1>
+        <p>全国超5000家酒店，一键预订，安心入住</p>
+        <a href="#booking" class="btn">立即预订</a>
+    </section>
+
+    <!-- 酒店展示区 -->
+    <div class="container" id="hotels">
+        <h2 class="section-title">热门酒店</h2>
+        <div id="hotelList" class="hotels"></div>
+    </div>
+
+    <!-- 预订表单区 -->
+    <section id="booking" class="booking-section">
+        <div class="container">
+            <h2 class="section-title">立即预订</h2>
+            <form id="bookingForm" class="booking-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="checkIn">入住日期</label>
+                        <input type="date" id="checkIn" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkOut">退房日期</label>
+                        <input type="date" id="checkOut" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="guests">入住人数</label>
+                        <select id="guests" class="form-control" required>
+                            <option value="">请选择</option>
+                            <option value="1">1人</option>
+                            <option value="2">2人</option>
+                            <option value="3">3人</option>
+                            <option value="4">4人及以上</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="roomType">房型选择</label>
+                        <select id="roomType" class="form-control" required>
+                            <option value="">请先选择入住日期</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hotelName">选择酒店</label>
+                    <select id="hotelName" class="form-control" required>
+                        <option value="">请选择</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">联系人姓名</label>
+                    <input type="text" id="name" class="form-control" placeholder="请输入您的姓名" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">联系电话</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="请输入您的手机号码" required>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%;">提交预订</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 用户评价区 -->
+    <div class="container" id="reviews">
+        <h2 class="section-title">用户真实评价</h2>
+        <div id="reviewList" class="reviews"></div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer id="contact">
+        <div class="footer-links">
+            <a href="#">关于我们</a>
+            <a href="#">隐私政策</a>
+            <a href="#">预订条款</a>
+            <a href="#">常见问题</a>
+        </div>
+        <p>客服热线：400-888-9999</p>
+        <p class="copyright">© 2026 悦庭酒店 版权所有</p>
+    </footer>
+
+    <!-- 预订成功弹窗 -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h2>预订提交成功！</h2>
+            <p>我们已收到您的预订请求，客服人员将在10分钟内与您联系确认详情。</p>
+            <p>预订编号：<span id="bookingId"></span></p>
+            <button class="btn success" onclick="openReviewModal()">去评价</button>
+            <button class="btn close-btn" onclick="closeModal()">稍后</button>
+        </div>
+    </div>
+
+    <!-- 评价弹窗 -->
+    <div id="reviewModal" class="modal" style="display:none;">
+        <div class="modal-content" style="text-align:left;">
+            <h3 style="color:#2c3e50; margin-bottom:1rem;">发表您的入住评价</h3>
+            <div style="margin:10px 0;">
+                <label style="margin-right:10px;"><input type="radio" name="star" value="5" checked> ★★★★★</label>
+                <label style="margin-right:10px;"><input type="radio" name="star" value="4"> ★★★★</label>
+                <label style="margin-right:10px;"><input type="radio" name="star" value="3"> ★★★</label>
+                <label style="margin-right:10px;"><input type="radio" name="star" value="2"> ★★</label>
+                <label><input type="radio" name="star" value="1"> ★</label>
+            </div>
+            <textarea id="reviewContent" rows="4" placeholder="写下您的入住感受，帮助更多人选择~" style="width:100%;padding:8px;margin:10px 0;border:1px solid #ddd;border-radius:4px;"></textarea>
+            <button class="btn primary" onclick="submitReview()">提交评价</button>
+            <button class="btn danger" onclick="closeModal()" style="margin-left:10px;">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // ####################### 基础酒店数据（保留，仅展示用） #######################
+        const hotelData = [
+            { id: "city-center", name: "悦庭·城市中心酒店", type: "商务酒店", price: "¥488/晚起", desc: "CBD核心地段，步行5分钟可达地铁站，配备健身房、自助早餐、免费停车。", img: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: "seaview", name: "悦庭·海景度假酒店", type: "度假酒店", price: "¥899/晚起", desc: "一线海景房，私人沙滩，无边泳池，亲子设施齐全，提供24小时客房服务。", img: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: "express", name: "悦庭·连锁快捷酒店", type: "快捷酒店", price: "¥328/晚起", desc: "经济实惠，24小时热水，免费WiFi，临近商圈，适合差旅人士。", img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" }
+        ];
+
+        // ####################### 日期&库存核心工具函数 #######################
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getDateRange(startDate, endDate) {
+            const dates = [];
+            let currentDate = new Date(startDate);
+            const end = new Date(endDate);
+            
+            while (currentDate <= end) {
+                dates.push(formatDate(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return dates;
+        }
+
+        // 初始化库存（仅创建空结构，无默认房型）
+        function initDateStock() {
+            if (localStorage.getItem('dateRoomStock')) return;
+            const stockData = {};
+            const today = new Date();
+            // 生成未来30天的空库存结构
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const dateStr = formatDate(date);
+                stockData[dateStr] = {}; // 空房型，由酒店端添加
+            }
+            localStorage.setItem('dateRoomStock', JSON.stringify(stockData));
+        }
+
+        // 获取指定日期的库存数据
+        function getDateRoomStock(dateStr) {
+            const allStock = JSON.parse(localStorage.getItem('dateRoomStock')) || {};
+            return allStock[dateStr] || {};
+        }
+
+        // 获取所有订单
+        function getAllOrders() {
+            return JSON.parse(localStorage.getItem('hotelOrders')) || [];
+        }
+
+        // 统计指定日期、指定房型的已预订数量
+        function getBookedCount(roomId, dateStr) {
+            const orders = getAllOrders();
+            let bookedCount = 0;
+            
+            orders.forEach(order => {
+                // 订单日期区间包含目标日期，且房型匹配
+                if (order.roomId === roomId && order.checkIn <= dateStr && order.checkOut >= dateStr) {
+                    bookedCount++;
+                }
+            });
+            
+            return bookedCount;
+        }
+
+        // 获取指定日期的所有房型（动态读取+自动计算可订数）
+        function getRoomsByDate(dateStr) {
+            const dateStock = getDateRoomStock(dateStr);
+            const rooms = [];
+
+            // 遍历酒店端配置的所有房型
+            Object.keys(dateStock).forEach(roomId => {
+                const roomIdNum = parseInt(roomId);
+                const total = dateStock[roomId].total;
+                const booked = getBookedCount(roomIdNum, dateStr);
+                const available = Math.max(0, total - booked); // 可订数=总数量-已预订（最小0）
+                
+                rooms.push({
+                    roomId: roomIdNum,
+                    name: dateStock[roomId].name,
+                    total: total,
+                    booked: booked,
+                    available: available
+                });
+            });
+            
+            return rooms;
+        }
+
+        // 校验日期区间内房型是否可订
+        function checkRoomAvailableInRange(roomId, startDate, endDate) {
+            const dateRange = getDateRange(startDate, endDate);
+            for (const date of dateRange) {
+                const rooms = getRoomsByDate(date);
+                const room = rooms.find(r => r.roomId === roomId);
+                if (!room || room.available <= 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // ####################### 渲染函数 #######################
+        function renderHotelList() {
+            const hotelList = document.getElementById("hotelList");
+            hotelList.innerHTML = "";
+            hotelData.forEach(hotel => {
+                const hotelCard = document.createElement("div");
+                hotelCard.className = "hotel-card";
+                hotelCard.setAttribute("data-type", hotel.type);
+                hotelCard.innerHTML = `
+                    <img src="${hotel.img}" alt="${hotel.name}" class="hotel-img">
+                    <div class="hotel-info">
+                        <h3 class="hotel-name">${hotel.name}</h3>
+                        <p style="color:#666; margin-bottom:0.5rem;">【${hotel.type}】</p>
+                        <p class="hotel-price">${hotel.price}</p>
+                        <p class="hotel-desc">${hotel.desc}</p>
+                        <a href="#booking" class="btn">预订此酒店</a>
+                    </div>
+                `;
+                hotelList.appendChild(hotelCard);
+            });
+        }
+
+        // 动态渲染房型下拉框（只显示存在且可订的房型）
+        function renderRoomTypeSelect() {
+            const roomTypeSelect = document.getElementById("roomType");
+            roomTypeSelect.innerHTML = '<option value="">请选择房型</option>';
+            
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+            
+            // 未选择日期时提示
+            if (!checkIn || !checkOut) {
+                roomTypeSelect.innerHTML = '<option value="">请先选择入住/退房日期</option>';
+                return;
+            }
+
+            // 读取酒店端配置的房型（自动计算可订数）
+            const rooms = getRoomsByDate(checkIn);
+            
+            // 无房型时提示
+            if (rooms.length === 0) {
+                roomTypeSelect.innerHTML = '<option value="">暂无可用房型（酒店端未配置）</option>';
+                return;
+            }
+            
+            // 只渲染可订的房型
+            let hasAvailableRooms = false;
+            rooms.forEach(room => {
+                // 校验该房型在日期区间内是否可订
+                const isAvailable = checkRoomAvailableInRange(room.roomId, checkIn, checkOut);
+                if (isAvailable) {
+                    hasAvailableRooms = true;
+                    const option = document.createElement("option");
+                    option.value = room.roomId;
+                    option.textContent = `${room.name} - 可订（剩余：${room.available}间 / 总：${room.total}间）`;
+                    roomTypeSelect.appendChild(option);
+                }
+            });
+            
+            // 无可用房型时提示
+            if (!hasAvailableRooms) {
+                roomTypeSelect.innerHTML = '<option value="">所选日期区间内暂无可订房型</option>';
+            }
+        }
+
+        function renderHotelSelect() {
+            const hotelSelect = document.getElementById("hotelName");
+            hotelSelect.innerHTML = '<option value="">请选择</option>';
+            hotelData.forEach(hotel => {
+                const option = document.createElement("option");
+                option.value = hotel.id;
+                option.textContent = hotel.name;
+                hotelSelect.appendChild(option);
+            });
+        }
+
+        function filterHotel(type) {
+            const hotelCards = document.querySelectorAll('.hotel-card');
+            hotelCards.forEach(card => {
+                const cardType = card.getAttribute('data-type');
+                if (type === 'all' || cardType === type) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function bindDateChangeEvent() {
+            const checkInInput = document.getElementById('checkIn');
+            const checkOutInput = document.getElementById('checkOut');
+            
+            // 日期变化时实时刷新房型
+            checkInInput.addEventListener('change', renderRoomTypeSelect);
+            checkOutInput.addEventListener('change', renderRoomTypeSelect);
+            
+            // 设置日期最小值为今天
+            const today = formatDate(new Date());
+            checkInInput.min = today;
+            checkOutInput.min = today;
+        }
+
+        // ####################### 评价相关 #######################
+        let currentOrder = null;
+
+        function openReviewModal() {
+            closeModal();
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function submitReview() {
+            const star = document.querySelector('input[name="star"]:checked');
+            const content = document.getElementById('reviewContent').value.trim();
+            
+            if (!star || content === "") {
+                alert('请选择评分并填写评价内容！');
+                return;
+            }
+            
+            // 获取评论列表
+            let reviews = JSON.parse(localStorage.getItem('hotelReviews')) || [];
+            // 添加新评论
+            reviews.push({
+                id: Date.now(),
+                orderId: currentOrder,
+                name: document.getElementById('name').value,
+                star: parseInt(star.value),
+                content: content,
+                time: formatDate(new Date())
+            });
+            // 保存评论
+            localStorage.setItem('hotelReviews', JSON.stringify(reviews));
+            
+            alert('评价提交成功！感谢您的反馈~');
+            closeModal();
+            // 刷新评论列表
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const reviewList = document.getElementById('reviewList');
+            reviewList.innerHTML = "";
+            
+            const reviews = JSON.parse(localStorage.getItem('hotelReviews')) || [];
+            
+            if (reviews.length === 0) {
+                reviewList.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#999; padding:2rem;">暂无用户评价，快来成为第一个评价的人吧！</div>';
+                return;
+            }
+            
+            reviews.forEach(review => {
+                const reviewCard = document.createElement("div");
+                reviewCard.className = "review-card";
+                reviewCard.innerHTML = `
+                    <div class="reviewer">
+                        <img src="https://picsum.photos/64/64?random=${review.id}" alt="${review.name}" class="reviewer-img">
+                        <div>
+                            <h4>${review.name}</h4>
+                            <div class="stars">${'★'.repeat(review.star)}</div>
+                        </div>
+                    </div>
+                    <p>${review.content}</p>
+                    <div style="font-size:12px; color:#999; margin-top:1rem;">评价时间：${review.time}</div>
+                `;
+                reviewList.appendChild(reviewCard);
+            });
+        }
+
+        // ####################### 预订逻辑 #######################
+        function generateBookingId() {
+            const prefix = "YT";
+            const randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            return prefix + randomNum;
+        }
+
+        function openModal(oid) {
+            currentOrder = oid;
+            const modal = document.getElementById('successModal');
+            const bookingId = document.getElementById('bookingId');
+            bookingId.textContent = oid;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+            document.getElementById('reviewModal').style.display = 'none';
+            document.getElementById('bookingForm').reset();
+            renderRoomTypeSelect();
+        }
+
+        // 表单提交
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 1. 日期验证
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+            
+            if (!checkIn || !checkOut) {
+                alert('请选择入住和退房日期！');
+                return;
+            }
+            
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (checkInDate < today) {
+                alert('入住日期不能早于今天，请重新选择！');
+                return;
+            }
+            
+            if (checkOutDate <= checkInDate) {
+                alert('退房日期必须晚于入住日期，请重新选择！');
+                return;
+            }
+
+            // 2. 房型验证
+            const selectedRoomId = parseInt(document.getElementById('roomType').value);
+            if (!selectedRoomId || isNaN(selectedRoomId)) {
+                alert('请选择可预订的房型！');
+                return;
+            }
+
+            // 3. 库存验证
+            const isAvailable = checkRoomAvailableInRange(selectedRoomId, checkIn, checkOut);
+            if (!isAvailable) {
+                alert('所选日期区间内该房型已无房，请重新选择！');
+                renderRoomTypeSelect();
+                return;
+            }
+
+            // 4. 获取选中的房型名称
+            const rooms = getRoomsByDate(checkIn);
+            const selectedRoom = rooms.find(room => room.roomId === selectedRoomId);
+            const roomName = selectedRoom ? selectedRoom.name : "未知房型";
+
+            // 5. 收集订单数据
+            const bookingId = generateBookingId();
+            const newOrder = {
+                id: bookingId,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                roomId: selectedRoomId,
+                room: roomName,
+                hotel: document.getElementById('hotelName').options[document.getElementById('hotelName').selectedIndex].text,
+                checkIn: checkIn,
+                checkOut: checkOut,
+                dateRange: getDateRange(checkIn, checkOut),
+                guests: document.getElementById('guests').value + '人',
+                status: '待确认'
+            };
+
+            // 6. 保存订单（无需手动扣减库存，可订数自动计算）
+            let orders = getAllOrders();
+            orders.push(newOrder);
+            localStorage.setItem('hotelOrders', JSON.stringify(orders));
+
+            // 7. 打开成功弹窗
+            openModal(bookingId);
+        });
+
+        // ####################### 页面初始化 #######################
+        window.onload = function() {
+            initDateStock();
+            renderHotelList();
+            renderRoomTypeSelect();
+            renderHotelSelect();
+            bindDateChangeEvent();
+            renderReviews();
+            
+            // 添加酒店筛选栏
+            const hotelSection = document.querySelector("#hotels");
+            const filterBar = document.createElement("div");
+            filterBar.style = "margin-bottom: 2rem; text-align: center;";
+            filterBar.innerHTML = `
+                <button class="btn" onclick="filterHotel('all')">全部酒店</button>
+                <button class="btn" onclick="filterHotel('商务酒店')">商务酒店</button>
+                <button class="btn" onclick="filterHotel('度假酒店')">度假酒店</button>
+                <button class="btn" onclick="filterHotel('快捷酒店')">快捷酒店</button>
+            `;
+            hotelSection.insertBefore(filterBar, document.getElementById("hotelList"));
+        };
+
+        // 弹窗点击外部关闭
+        window.addEventListener('click', function(e) {
+            const successModal = document.getElementById('successModal');
+            const reviewModal = document.getElementById('reviewModal');
+            
+            if (e.target === successModal) closeModal();
+            if (e.target === reviewModal) closeModal();
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

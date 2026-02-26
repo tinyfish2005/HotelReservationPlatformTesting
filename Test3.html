@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>酒店管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
+body{background:#f5f7fa}
+.header{background:#2c3e50;color:#fff;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center}
+.container{max-width:1200px;margin:2rem auto;padding:0 1rem}
+.card{background:#fff;border-radius:8px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.title{font-size:1.2rem;margin-bottom:1rem;color:#333;font-weight:700}
+table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+th,td{padding:.8rem;text-align:left;border-bottom:1px solid #eee}
+th{background:#f8f9fa}
+.btn{padding:.4rem .8rem;border:none;border-radius:4px;cursor:pointer;font-size:.9rem;margin:0 2px}
+.success{background:#2ecc71;color:#fff}
+.warning{background:#f39c12;color:#fff}
+.danger{background:#e74c3c;color:#fff}
+.primary{background:#3498db;color:#fff}
+.login-box{max-width:400px;margin:100px auto;padding:2rem;background:#fff;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+input{width:100%;padding:.8rem;margin:.6rem 0;border:1px solid #ddd;border-radius:4px}
+.logout-btn{background:#e74c3c;color:#fff;padding:.5rem 1rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.edit-input{width:80px;padding:.3rem;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="login" class="login-box">
+  <h2 style="margin-bottom:1.5rem;text-align:center">酒店管理后台</h2>
+  <input placeholder="账号" id="admin_user" value="hotel">
+  <input placeholder="密码" type="password" id="admin_pwd" value="123456">
+  <button class="btn primary" style="width:100%;margin-top:1rem" onclick="login()">登录</button>
+</div>
+
+<div id="admin" style="display:none">
+  <div class="header">
+    <h3>酒店管理后台</h3>
+    <button class="btn logout-btn" onclick="logout()">退出登录</button>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="title">📋 订单管理</div>
+      <table>
+        <thead>
+          <tr>
+            <th>订单号</th><th>姓名</th><th>房型</th><th>日期</th><th>状态</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="orderTable"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="title">🏠 房型管理（可增/改/删）</div>
+      <div style="padding:1rem;background:#f8f9fa;border-radius:4px;margin-bottom:1rem">
+        <h4 style="margin-bottom:1rem">新增房型</h4>
+        <div class="form-row">
+          <div>
+            <label>房型名称</label>
+            <input type="text" id="newRoomName" placeholder="如：大床房">
+          </div>
+          <div>
+            <label>总房间数</label>
+            <input type="number" id="newRoomTotal" min="1" value="5">
+          </div>
+        </div>
+        <button class="btn primary" onclick="addRoom()">添加房型</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>房型名称</th><th>总数量</th><th>已预订</th><th>可订数量</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="roomTable"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="title">⭐ 评价管理</div>
+      <table>
+        <thead>
+          <tr>
+            <th>用户</th><th>评分</th><th>内容</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="reviewTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function fmt(d){
+  d=new Date(d);
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),d_=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d_}`;
+}
+
+function today(){return fmt(new Date())}
+
+// 读取库存
+function stock(){
+  const data = localStorage.getItem('dateRoomStock');
+  return data ? JSON.parse(data) : {};
+}
+
+// 保存库存
+function saveStock(s){
+  localStorage.setItem('dateRoomStock', JSON.stringify(s));
+}
+
+// 获取所有订单
+function getOrders(){
+  return JSON.parse(localStorage.getItem('hotelOrders')||'[]');
+}
+
+// 统计指定房型今日已预订数量
+function getBookedCount(roomId) {
+  const orders = getOrders();
+  const todayDate = today();
+  let bookedCount = 0;
+
+  // 遍历所有订单，统计今日已预订该房型的数量
+  orders.forEach(order => {
+    // 订单日期区间包含今天，且房型匹配
+    if (order.roomId === roomId && order.checkIn <= todayDate && order.checkOut >= todayDate) {
+      bookedCount++;
+    }
+  });
+
+  return bookedCount;
+}
+
+// 获取房型列表（核心：自动计算可订数）
+function rooms(){
+  const s = stock();
+  const td = s[today()] || {};
+  const roomList = [];
+
+  // 遍历所有房型，计算可订数
+  Object.entries(td).forEach(([k, v]) => {
+    const roomId = +k;
+    const total = v.total;
+    const booked = getBookedCount(roomId); // 已预订数量
+    const available = Math.max(0, total - booked); // 可订数 = 总数量 - 已预订（最小为0）
+
+    roomList.push({
+      id: roomId,
+      name: v.name,
+      total: total,
+      booked: booked,
+      avail: available // 可订数量
+    });
+  });
+
+  return roomList;
+}
+
+// 登录
+function login(){
+  const u=document.getElementById('admin_user').value;
+  const p=document.getElementById('admin_pwd').value;
+  if(u==='hotel'&&p==='123456'){
+    document.getElementById('login').style.display='none';
+    document.getElementById('admin').style.display='block';
+    render();
+  }else{
+    alert('账号或密码错误');
+  }
+}
+
+function logout(){
+  document.getElementById('admin').style.display='none';
+  document.getElementById('login').style.display='block';
+}
+
+// 新增房型
+function addRoom(){
+  const name=document.getElementById('newRoomName').value.trim();
+  const total=+document.getElementById('newRoomTotal').value;
+  if(!name || total<1){
+    alert('请填写完整，数量≥1');
+    return;
+  }
+
+  const s=stock();
+  const td=s[today()] || {};
+  const ids=Object.keys(td).map(Number);
+  const newId=ids.length ? Math.max(...ids)+1 : 1;
+
+  // 为所有日期初始化新房型
+  Object.keys(s).forEach(date=>{
+    s[date][newId]={name, total, available:total}; // available仅作为初始值，实际用计算值
+  });
+
+  saveStock(s);
+  document.getElementById('newRoomName').value='';
+  document.getElementById('newRoomTotal').value='5';
+  render();
+  alert('✅ 添加成功：'+name);
+}
+
+// 修改房型总数量
+function updateRoomTotal(roomId, newTotal){
+  if(newTotal<1){
+    alert('数量必须≥1');
+    return;
+  }
+
+  const s=stock();
+  // 同步所有日期的总数量
+  Object.keys(s).forEach(date=>{
+    if(s[date][roomId]){
+      s[date][roomId].total = newTotal;
+    }
+  });
+
+  saveStock(s);
+  render();
+  alert('✅ 总数量修改成功！');
+}
+
+// 回车修改数量
+function onTotalKeyDown(e, roomId){
+  if(e.key==='Enter' || e.keyCode===13){
+    e.preventDefault();
+    const val=parseInt(e.target.value);
+    updateRoomTotal(roomId, val);
+  }
+}
+
+// 删除房型
+function delRoom(id){
+  const s=stock();
+  const name = (s[today()]&&s[today()][id]) ? s[today()][id].name : '该房型';
+  
+  if(!confirm(`⚠️ 确认删除房型「${name}（ID：${id}）」吗？
+删除后该房型会从所有日期的库存中彻底移除，用户端将无法看到/预订该房型！`)){
+    return;
+  }
+
+  // 遍历所有日期删除该房型
+  Object.keys(s).forEach(date=>{
+    if(s[date][id]) delete s[date][id];
+  });
+
+  saveStock(s);
+  render();
+  alert('✅ 已删除：'+name);
+}
+
+// 删除订单（自动恢复可订数）
+function delOrder(i){
+  if(!confirm('⚠️ 确认删除此订单？删除后会自动恢复对应房型的可订数量！')) return;
+  
+  const os=getOrders();
+  const deletedOrder = os[i];
+  
+  // 删除订单
+  os.splice(i,1);
+  localStorage.setItem('hotelOrders',JSON.stringify(os));
+  
+  render();
+  alert(`✅ 订单已删除！
+${deletedOrder.room} 的可订数量已恢复1间`);
+}
+
+// 修改订单状态
+function setStatus(i,st){
+  const os=getOrders();
+  os[i].status=st;
+  localStorage.setItem('hotelOrders',JSON.stringify(os));
+  render();
+}
+
+// 评价相关
+function getReviews(){
+  return JSON.parse(localStorage.getItem('hotelReviews')||'[]');
+}
+
+function delReview(id){
+  if(!confirm('确定删除这条评价？')) return;
+  const list=getReviews().filter(x=>x.id!==id);
+  localStorage.setItem('hotelReviews',JSON.stringify(list));
+  render();
+}
+
+// 全局渲染
+function render(){
+  // 1. 渲染房型列表（带自动计算的可订数）
+  const rs=rooms();
+  const roomTable=document.getElementById('roomTable');
+  
+  if(rs.length===0){
+    roomTable.innerHTML='<tr><td colspan="6" align="center">暂无房型，请先添加</td></tr>';
+  }else{
+    roomTable.innerHTML=rs.map(r=>`
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.name}</td>
+      <td>
+        <input class="edit-input"
+          type="number"
+          value="${r.total}"
+          min="1"
+          onkeydown="onTotalKeyDown(event, ${r.id})">
+      </td>
+      <td style="color:#e74c3c; font-weight:bold;">${r.booked}</td>
+      <td style="color:#2ecc71; font-weight:bold;">${r.avail}</td>
+      <td>
+        <button class="btn danger" onclick="delRoom(${r.id})">删除房型</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  // 2. 渲染订单列表
+  const os=getOrders();
+  const orderTable=document.getElementById('orderTable');
+  
+  if(os.length===0){
+    orderTable.innerHTML='<tr><td colspan="6" align="center">暂无订单</td></tr>';
+  }else{
+    orderTable.innerHTML=os.map((o,i)=>`
+    <tr>
+      <td>${o.id}</td>
+      <td>${o.name}</td>
+      <td>${o.room}</td>
+      <td>${o.checkIn}~${o.checkOut}</td>
+      <td>${o.status}</td>
+      <td>
+        <button class="btn success" onclick="setStatus(${i},'已确认')">确认</button>
+        <button class="btn warning" onclick="setStatus(${i},'已入住')">入住</button>
+        <button class="btn danger" onclick="delOrder(${i})">删除订单</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  // 3. 渲染评价列表
+  const vs=getReviews();
+  const reviewTable=document.getElementById('reviewTable');
+  
+  if(vs.length===0){
+    reviewTable.innerHTML='<tr><td colspan="4" align="center">暂无评价</td></tr>';
+  }else{
+    reviewTable.innerHTML=vs.map(v=>`
+    <tr>
+      <td>${v.name}</td>
+      <td>${'★'.repeat(v.star)}</td>
+      <td>${v.content}</td>
+      <td><button class="btn danger" onclick="delReview(${v.id})">删除</button></td>
+    </tr>`).join('');
+  }
+}
+</script>
+</body>
+</html>
